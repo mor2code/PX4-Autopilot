@@ -116,7 +116,6 @@ set(msg_files
 	GpioOut.msg
 	GpioRequest.msg
 	GpsDump.msg
-	GpsInjectData.msg
 	Gripper.msg
 	HealthReport.msg
 	HeaterStatus.msg
@@ -192,6 +191,8 @@ set(msg_files
 	RoverSteeringSetpoint.msg
 	RoverThrottleSetpoint.msg
 	Rpm.msg
+	RtcmCorrections.msg
+	RtcmMovingBaseline.msg
 	RtlStatus.msg
 	RtlTimeEstimate.msg
 	SatelliteInfo.msg

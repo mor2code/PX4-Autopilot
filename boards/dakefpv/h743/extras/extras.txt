@@ -1,6 +1,8 @@
 #!/bin/sh
 # DAKEFPV H743 — user startup extras
 #
-# Copy this file to /fs/microsd/etc/extras.txt
 # Commands here run at every boot after the main init scripts.
+# Edit to add custom drivers or configuration.
+#
+# Note: IST8310/QMC5883L on I2C2 are already started by rc.board_extras.
 #

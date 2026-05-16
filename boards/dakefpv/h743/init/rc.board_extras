@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# DAKEFPV H743 board extras
+#
+
+# External compass on I2C2 — start whichever is present, ignore if absent
+ist8310 -X -b 2 -q start
+qmc5883l -X -b 2 -q start

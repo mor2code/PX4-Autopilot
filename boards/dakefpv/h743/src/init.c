@@ -196,35 +196,29 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 #endif
 
 #ifdef CONFIG_MTD_W25
-        /* Mount W25Q128 SPI flash (SPI3, CS=PA15) as /fs/microsd for blackbox logging */
+        /* Mount W25Q128 SPI NOR flash (SPI3, CS=PA15) at /fs/microsd */
         struct spi_dev_s *spi3 = stm32_spibus_initialize(3);
 
         if (!spi3) {
-                syslog(LOG_ERR, "[boot] FAILED to init SPI3 for dataflash\n");
+                syslog(LOG_ERR, "[boot] W25: SPI3 init failed\n");
 
         } else {
                 struct mtd_dev_s *mtd = w25_initialize(spi3);
 
                 if (!mtd) {
-                        syslog(LOG_ERR, "[boot] FAILED to init W25Q dataflash\n");
+                        syslog(LOG_ERR, "[boot] W25: chip not recognised\n");
 
                 } else {
                         int ret = register_mtddriver("/dev/mtd0", mtd, 0755, NULL);
 
-                        if (ret == OK) {
-                                ret = nx_mount("/dev/mtd0", "/fs/microsd", "littlefs", 0, NULL);
+                        if (ret < 0 && ret != -EEXIST) {
+                                syslog(LOG_ERR, "[boot] W25: MTD register failed %d\n", ret);
+
+                        } else {
+                                ret = nx_mount("/dev/mtd0", "/fs/microsd", "littlefs", 0, "autoformat");
 
                                 if (ret < 0) {
-                                        /* First boot — format the flash */
-                                        syslog(LOG_INFO, "[boot] Formatting dataflash...\n");
-                                        ret = nx_mount("/dev/mtd0", "/fs/microsd", "littlefs", 0, "forceformat");
-                                }
-
-                                if (ret == OK) {
-                                        syslog(LOG_INFO, "[boot] Dataflash mounted at /fs/microsd\n");
-
-                                } else {
-                                        syslog(LOG_ERR, "[boot] FAILED to mount dataflash: %d\n", ret);
+                                        syslog(LOG_ERR, "[boot] W25: mount failed %d\n", ret);
                                 }
                         }
                 }

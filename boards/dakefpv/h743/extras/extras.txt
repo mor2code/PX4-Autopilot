@@ -1,0 +1,6 @@
+#!/bin/sh
+# DAKEFPV H743 — user startup extras
+#
+# Copy this file to /fs/microsd/etc/extras.txt
+# Commands here run at every boot after the main init scripts.
+#

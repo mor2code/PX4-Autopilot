@@ -236,11 +236,7 @@ __EXPORT int board_app_initialize(uintptr_t arg)
                                                 ef = fopen(extras, "w");
                                                 if (ef) {
                                                         fputs("# DAKEFPV H743 extras -- runs at every boot\n", ef);
-                                                        fputs("# Edit to add or remove optional drivers.\n", ef);
-                                                        fputs("\n", ef);
-                                                        fputs("# External IST8310 compass on I2C2\n", ef);
-                                                        fputs("# PX4 default address is 0x0E; this board uses 0x0C\n", ef);
-                                                        fputs("ist8310 -X -b 2 -a 0x0C start\n", ef);
+                                                        fputs("# Add driver start commands here.\n", ef);
                                                         fclose(ef);
                                                 }
                                         } else {

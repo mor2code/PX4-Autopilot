@@ -2,7 +2,3 @@
 #
 # DAKEFPV H743 board extras
 #
-
-# External IST8310 compass on I2C2
-# Note: address is 0x0C — PX4's default (0x0E) is wrong for this board
-ist8310 -X -b 2 -a 0x0C -q start

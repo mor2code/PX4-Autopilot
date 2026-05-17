@@ -2,3 +2,8 @@
 #
 # DAKEFPV H743 board extras
 #
+# Ensure /fs/microsd/etc/ exists so users can place extras.txt there.
+# Commands in /fs/microsd/etc/extras.txt run at every subsequent boot.
+#
+
+mkdir -p /fs/microsd/etc

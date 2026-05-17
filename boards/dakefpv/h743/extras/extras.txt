@@ -1,6 +1,9 @@
 #!/bin/sh
 # DAKEFPV H743 — user startup extras
 #
-# Copy this file to /fs/microsd/etc/extras.txt
-# Commands here run at every boot after the main init scripts.
+# This file runs at every boot after the main init scripts.
+# To activate: copy to /fs/microsd/etc/extras.txt
+#   From NSH: echo "ist8310 -X -b 2 -a 0x0C start" > /fs/microsd/etc/extras.txt
 #
+# External IST8310 compass on I2C2 (address 0x0C — PX4 default 0x0E is wrong for this board)
+ist8310 -X -b 2 -a 0x0C start

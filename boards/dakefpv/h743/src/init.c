@@ -44,6 +44,8 @@
 #include "board_config.h"
 
 #include <syslog.h>
+#include <stdio.h>
+#include <sys/stat.h>
 
 #include <nuttx/config.h>
 #include <nuttx/board.h>
@@ -196,35 +198,52 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 #endif
 
 #ifdef CONFIG_MTD_W25
-        /* Mount W25Q128 SPI flash (SPI3, CS=PA15) as /fs/microsd for blackbox logging */
+        /* Mount W25Q128 SPI NOR flash (SPI3, CS=PA15) at /fs/microsd */
         struct spi_dev_s *spi3 = stm32_spibus_initialize(3);
 
         if (!spi3) {
-                syslog(LOG_ERR, "[boot] FAILED to init SPI3 for dataflash\n");
+                syslog(LOG_INFO, "[boot] W25: SPI3 init failed\n");
 
         } else {
                 struct mtd_dev_s *mtd = w25_initialize(spi3);
 
                 if (!mtd) {
-                        syslog(LOG_ERR, "[boot] FAILED to init W25Q dataflash\n");
+                        syslog(LOG_INFO, "[boot] W25: chip not recognised\n");
 
                 } else {
+                        syslog(LOG_INFO, "[boot] W25: chip ok, registering MTD...\n");
                         int ret = register_mtddriver("/dev/mtd0", mtd, 0755, NULL);
 
-                        if (ret == OK) {
+                        if (ret < 0 && ret != -EEXIST) {
+                                syslog(LOG_INFO, "[boot] W25: MTD register failed %d\n", ret);
+
+                        } else {
                                 ret = nx_mount("/dev/mtd0", "/fs/microsd", "littlefs", 0, NULL);
 
                                 if (ret < 0) {
-                                        /* First boot — format the flash */
-                                        syslog(LOG_INFO, "[boot] Formatting dataflash...\n");
+                                        syslog(LOG_INFO, "[boot] W25: first mount failed %d, formatting...\n", ret);
                                         ret = nx_mount("/dev/mtd0", "/fs/microsd", "littlefs", 0, "forceformat");
                                 }
 
-                                if (ret == OK) {
-                                        syslog(LOG_INFO, "[boot] Dataflash mounted at /fs/microsd\n");
+                                if (ret == 0) {
+                                        syslog(LOG_INFO, "[boot] W25: mounted at /fs/microsd\n");
 
+                                        /* Seed extras.txt on first boot if not present */
+                                        mkdir("/fs/microsd/etc", 0755);
+                                        const char *extras = "/fs/microsd/etc/extras.txt";
+                                        FILE *ef = fopen(extras, "r");
+                                        if (!ef) {
+                                                ef = fopen(extras, "w");
+                                                if (ef) {
+                                                        fputs("# DAKEFPV H743 extras -- runs at every boot\n", ef);
+                                                        fputs("# Add driver start commands here.\n", ef);
+                                                        fclose(ef);
+                                                }
+                                        } else {
+                                                fclose(ef);
+                                        }
                                 } else {
-                                        syslog(LOG_ERR, "[boot] FAILED to mount dataflash: %d\n", ret);
+                                        syslog(LOG_INFO, "[boot] W25: mount failed %d\n", ret);
                                 }
                         }
                 }

@@ -44,6 +44,8 @@
 #include "board_config.h"
 
 #include <syslog.h>
+#include <stdio.h>
+#include <sys/stat.h>
 
 #include <nuttx/config.h>
 #include <nuttx/board.h>
@@ -225,6 +227,25 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 
                                 if (ret == 0) {
                                         syslog(LOG_INFO, "[boot] W25: mounted at /fs/microsd\n");
+
+                                        /* Seed extras.txt on first boot if not present */
+                                        mkdir("/fs/microsd/etc", 0755);
+                                        const char *extras = "/fs/microsd/etc/extras.txt";
+                                        FILE *ef = fopen(extras, "r");
+                                        if (!ef) {
+                                                ef = fopen(extras, "w");
+                                                if (ef) {
+                                                        fputs("# DAKEFPV H743 extras -- runs at every boot\n", ef);
+                                                        fputs("# Edit to add or remove optional drivers.\n", ef);
+                                                        fputs("\n", ef);
+                                                        fputs("# External IST8310 compass on I2C2\n", ef);
+                                                        fputs("# PX4 default address is 0x0E; this board uses 0x0C\n", ef);
+                                                        fputs("ist8310 -X -b 2 -a 0x0C start\n", ef);
+                                                        fclose(ef);
+                                                }
+                                        } else {
+                                                fclose(ef);
+                                        }
                                 } else {
                                         syslog(LOG_INFO, "[boot] W25: mount failed %d\n", ret);
                                 }

@@ -175,6 +175,7 @@ px4_add_module(
 		sensors/fuel_tank_status.cpp
 		sensors/gnss_relative.cpp
 		sensors/gnss.cpp
+		sensors/remote_time_mapper.cpp
 		sensors/mag.cpp
 		sensors/rangefinder.cpp
 		sensors/accel.cpp

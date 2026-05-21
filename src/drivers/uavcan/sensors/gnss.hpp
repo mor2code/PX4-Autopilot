@@ -62,6 +62,7 @@
 #include <lib/perf/perf_counter.h>
 
 #include "sensor_bridge.hpp"
+#include "remote_time_mapper.hpp"
 
 class UavcanGnssBridge : public UavcanSensorBridgeBase
 {
@@ -152,6 +153,14 @@ private:
 	bool _system_clock_set{false};  ///< Have we set the system clock at least once from GNSS data?
 
 	bool *_channel_using_fix2; ///< Flag for whether each channel is using Fix2 or Fix msg
+
+	// Per-source-node send-timestamp mapper. Slot count matches channel count.
+	struct TimeMapperSlot {
+		int node_id{-1};
+		RemoteTimeMapper mapper;
+	};
+	static constexpr unsigned kMaxTimeMapperSlots = 4;
+	TimeMapperSlot _time_mapper_slots[kMaxTimeMapperSlots];
 
 	bool _publish_rtcm_stream{false};
 	bool _publish_moving_baseline_data{false};

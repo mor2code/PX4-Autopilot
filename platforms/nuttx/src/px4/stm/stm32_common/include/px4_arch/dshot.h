@@ -38,30 +38,28 @@
 #include <stm32_dma.h>
 #include <arch/board/board.h>
 
-// Pick WIDTH so floor(TIM_CLK / 600000) divides cleanly into it, keeping the
-// prescaler integer. Guard skips F1 IO co-processors (no TIM8, no DSHOT).
-#if defined(STM32_APB1_TIM5_CLKIN) && defined(STM32_APB2_TIM8_CLKIN)
+// Number of timer ticks per DSHOT bit. The timer is configured with ARR = WIDTH
+// and PSC = floor(TIM_CLK / DSHOT_FREQ) / WIDTH - 1, so the realized bit period is
+// (PSC+1) * (ARR+1) ticks. Picking a WIDTH that divides floor(TIM_CLK / DSHOT_FREQ)
+// evenly keeps the prescaler integer and the rate accurate.
+//
+// This is computed per timer from that timer's own clock rather than from a single
+// board-wide define, so boards whose timers run on different clocks (e.g. APB1 vs
+// APB2) each get the correct width without any board-specific configuration.
+static inline uint32_t dshot_motor_pwm_bit_width(uint32_t timer_clock, unsigned dshot_pwm_freq)
+{
+	const uint32_t ticks = timer_clock / dshot_pwm_freq;
 
-#define _DSHOT600_TICKS_APB1 (STM32_APB1_TIM5_CLKIN / 600000U)
-#define _DSHOT600_TICKS_APB2 (STM32_APB2_TIM8_CLKIN / 600000U)
+	// Prefer the widest period that divides evenly (most timing resolution); fall
+	// back to 20 when none does, matching the legacy default.
+	for (uint32_t width = 20u; width >= 18u; --width) {
+		if (ticks % width == 0u) {
+			return width;
+		}
+	}
 
-#if   (_DSHOT600_TICKS_APB1 % 20U == 0U)
-#  define DSHOT_MOTOR_PWM_BIT_WIDTH		20u
-#elif (_DSHOT600_TICKS_APB1 % 19U == 0U)
-#  define DSHOT_MOTOR_PWM_BIT_WIDTH		19u
-#elif (_DSHOT600_TICKS_APB1 % 18U == 0U)
-#  define DSHOT_MOTOR_PWM_BIT_WIDTH		18u
-#else
-#  define DSHOT_MOTOR_PWM_BIT_WIDTH		20u
-#endif
-
-#if (_DSHOT600_TICKS_APB1 % DSHOT_MOTOR_PWM_BIT_WIDTH) != (_DSHOT600_TICKS_APB2 % DSHOT_MOTOR_PWM_BIT_WIDTH)
-#  pragma message "DSHOT bit width: APB1 and APB2 timer clocks emit DSHOT at different rates on this board"
-#endif
-
-#else
-#  define DSHOT_MOTOR_PWM_BIT_WIDTH		20u
-#endif
+	return 20u;
+}
 
 /* Configuration for each timer to setup DShot. Some timers have only one while others have two choices for the stream.
  *

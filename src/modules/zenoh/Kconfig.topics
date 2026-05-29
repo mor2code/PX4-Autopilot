@@ -661,12 +661,8 @@ menu "Zenoh publishers/subscribers"
 		bool "rpm"
 		default n
 
-	config ZENOH_PUBSUB_RTCM_CORRECTIONS
-		bool "rtcm_corrections"
-		default n
-
-	config ZENOH_PUBSUB_RTCM_MOVING_BASELINE
-		bool "rtcm_moving_baseline"
+	config ZENOH_PUBSUB_RTCM_DATA
+		bool "rtcm_data"
 		default n
 
 	config ZENOH_PUBSUB_RTL_STATUS
@@ -1119,8 +1115,7 @@ config ZENOH_PUBSUB_ALL_SELECTION
 	select ZENOH_PUBSUB_ROVER_STEERING_SETPOINT
 	select ZENOH_PUBSUB_ROVER_THROTTLE_SETPOINT
 	select ZENOH_PUBSUB_RPM
-	select ZENOH_PUBSUB_RTCM_CORRECTIONS
-	select ZENOH_PUBSUB_RTCM_MOVING_BASELINE
+	select ZENOH_PUBSUB_RTCM_DATA
 	select ZENOH_PUBSUB_RTL_STATUS
 	select ZENOH_PUBSUB_RTL_TIME_ESTIMATE
 	select ZENOH_PUBSUB_SATELLITE_INFO

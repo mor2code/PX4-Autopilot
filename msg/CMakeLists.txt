@@ -191,8 +191,7 @@ set(msg_files
 	RoverSteeringSetpoint.msg
 	RoverThrottleSetpoint.msg
 	Rpm.msg
-	RtcmCorrections.msg
-	RtcmMovingBaseline.msg
+	RtcmData.msg
 	RtlStatus.msg
 	RtlTimeEstimate.msg
 	SatelliteInfo.msg

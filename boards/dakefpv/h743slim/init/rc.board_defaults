@@ -3,7 +3,7 @@
 # DAKEFPV H743 Slim board-specific parameter defaults
 #------------------------------------------------------------------------------
 
-# No internal compass — external optional
+# No internal compass — external optional (e.g. Foxeer M10Q on I2C2)
 param set-default SYS_HAS_MAG 0
 param set-default EKF2_MAG_TYPE 5
 
@@ -15,3 +15,5 @@ param set-default BAT1_A_PER_V 83.3
 
 # Digital FPV camera / MSP DisplayPort OSD on TELEM3 (ttyS3)
 param set-default MSP_OSD_CONFIG 103
+# Analog OSD (AT7456E) is fitted on all variants; 2 = PAL, 1 = NTSC, 0 = disabled
+param set-default OSD_ATXXXX_CFG 2

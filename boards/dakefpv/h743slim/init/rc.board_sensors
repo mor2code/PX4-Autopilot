@@ -11,8 +11,5 @@ icm42688p -s -b 1 -R 4 start
 # Internal SPI bus ICM-42688P (SPI4), YAW_270 (14)
 icm42688p -s -b 4 -R 14 start
 
-# OSD
-atxxxx start -s
-
 # Internal baro SPL06 on I2C2
 spl06 start -X -b 2

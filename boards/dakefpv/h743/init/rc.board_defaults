@@ -3,8 +3,8 @@
 # DAKEFPV H743 board-specific parameter defaults
 #------------------------------------------------------------------------------
 
-# FC board is mounted with IMU facing down — apply ROLL_180 correction
-param set-default SENS_BOARD_ROT 8
+# IMU mounting offsets are applied per-sensor in rc.board_sensors
+# (icm42688p -R); SENS_BOARD_ROT stays at the default (none).
 
 # No internal compass — external optional (e.g. Foxeer M10Q on I2C2)
 param set-default SYS_HAS_MAG 0
@@ -25,3 +25,5 @@ param set-default SYS_DM_BACKEND 1
 
 # Digital FPV camera / MSP DisplayPort OSD on TELEM3 (ttyS3)
 param set-default MSP_OSD_CONFIG 103
+# Analog OSD (AT7456E) is fitted on all variants; 2 = PAL, 1 = NTSC, 0 = disabled
+param set-default OSD_ATXXXX_CFG 2

@@ -25,6 +25,9 @@ The boards in this category are:
 - [CubePilot Cube Orange+](../flight_controller/cubepilot_cube_orangeplus.md)
 - [CubePilot Cube Orange](../flight_controller/cubepilot_cube_orange.md)
 - [CubePilot Cube Yellow](../flight_controller/cubepilot_cube_yellow.md)
+- [DAKEFPV H743](../flight_controller/dakefpv_h743.md)
+- [DAKEFPV H743 Pro](../flight_controller/dakefpv_h743pro.md)
+- [DAKEFPV H743 Slim](../flight_controller/dakefpv_h743slim.md)
 - [Holybro Kakute H7v2](../flight_controller/kakuteh7v2.md)
 - [Holybro Kakute H7mini](../flight_controller/kakuteh7mini.md)
 - [Holybro Kakute F7](../flight_controller/kakutef7.md) - Discontinued

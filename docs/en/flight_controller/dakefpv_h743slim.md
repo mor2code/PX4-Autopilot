@@ -114,7 +114,26 @@ The AT7456E analog OSD is on SPI2 and is enabled by default for PAL
 Set it to `1` for NTSC, or `0` to disable the analog OSD; a reboot is required.
 Analog OSD and digital HD OSD can run at the same time.
 
-The digital VTX (DJI/HDZero/OpenIPC) uses MSP DisplayPort on the `T4`/`R4` pads — UART4, PX4 TELEM3 (`/dev/ttyS3`), which is the `MSP_OSD_CONFIG 103` default.
+The digital VTX (DJI/HDZero/OpenIPC) uses MSP DisplayPort on UART4, PX4 TELEM3 (`/dev/ttyS3`), which is the `MSP_OSD_CONFIG 103` default.
+
+Connect the VTX with a stock DJI/OpenIPC harness in the 6-pin HD VTX connector.
+Because UART4 is swapped (see below), the `T4`/`R4` pad labels do not match PX4's TX/RX direction.
+
+::: info `Dji`/`VTX` solder jumper
+The three-pad solder jumper silkscreened `Dji` and `VTX` selects what the HD VTX connector's
+RX4 pin carries: UART4 RX for a digital air unit, or the analog composite video signal when the
+connector drives an analog VTX. It is not in the OSD's transmit path, so it does not affect
+MSP DisplayPort output.
+:::
+
+::: info UART4 is swapped in firmware to match the connector
+This variant shares the H743 Pro's UART4 pin mapping (PB8/PB9) and its HD VTX connector, on which
+pin 3 — the pin a standard DJI/OpenIPC harness expects to carry the flight controller's TX — is
+routed to **PB8**. The STM32H743 offers UART4 TX only on PB9 and RX only on PB8, so PX4 swaps the
+UART4 peripheral itself (`USART_CR2_SWAP`, applied once during board start-up) and a stock harness
+works as labelled. This is automatic — there is nothing to configure. See the
+[H743 Pro](dakefpv_h743pro.md) page for the full explanation.
+:::
 
 ## CAN
 

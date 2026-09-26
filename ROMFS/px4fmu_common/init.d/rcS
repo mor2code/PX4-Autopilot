@@ -239,7 +239,11 @@ else
 		then
 			. ${R}etc/init.d/rc.autostart_ext
 		else
-			echo "ERROR [init] SD not mounted, skipping external airframe"
+			# Only report it on boards that have an SD card slot
+			if [ -b "/dev/mmcsd0" ]
+			then
+				echo "ERROR [init] SD not mounted, skipping external airframe"
+			fi
 		fi
 	fi
 

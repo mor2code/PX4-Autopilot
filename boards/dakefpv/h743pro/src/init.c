@@ -74,12 +74,6 @@
 #  include <parameters/flashparams/flashfs.h>
 #endif
 
-#if defined(CONFIG_MTD_W25) || defined(CONFIG_MTD_M25P)
-#  include <nuttx/spi/spi.h>
-#  include <nuttx/mtd/mtd.h>
-#  include <sys/mount.h>
-#endif
-
 __BEGIN_DECLS
 extern void led_init(void);
 extern void led_on(int led);
@@ -234,99 +228,6 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 		boot_log(LOG_ERR, "[boot] FAILED to init params in FLASH %d\n", result);
 		led_on(LED_BLUE);
 		return -ENODEV;
-	}
-
-#endif
-
-#if defined(CONFIG_MTD_W25) || defined(CONFIG_MTD_M25P)
-	/* Mount W25Q128 SPI NOR flash (SPI3, CS=PA15) at /fs/microsd */
-	struct spi_dev_s *spi3 = stm32_spibus_initialize(3);
-
-	if (!spi3) {
-		boot_log(LOG_INFO, "[boot] flash: SPI3 init failed\n");
-
-	} else {
-		/* Read the JEDEC ID (RDID) before probing, so a failure can report
-		 * what the part actually answered. "chip not recognised" on its own
-		 * gives nothing to act on, and these boards have shipped with more
-		 * than one flash part. All-zero or all-ff means the SPI transaction
-		 * itself failed rather than the chip being unknown.
-		 */
-		uint8_t jedec[3] = {0, 0, 0};
-
-		SPI_LOCK(spi3, true);
-		SPI_SETMODE(spi3, SPIDEV_MODE0);
-		SPI_SETBITS(spi3, 8);
-		SPI_SETFREQUENCY(spi3, 1000000);
-		SPI_SELECT(spi3, SPIDEV_FLASH(0), true);
-		SPI_SEND(spi3, 0x9f);
-		jedec[0] = SPI_SEND(spi3, 0xff);
-		jedec[1] = SPI_SEND(spi3, 0xff);
-		jedec[2] = SPI_SEND(spi3, 0xff);
-		SPI_SELECT(spi3, SPIDEV_FLASH(0), false);
-		SPI_LOCK(spi3, false);
-
-		/* These boards ship with more than one flash part. Both have been
-		 * seen on H743 Pro hardware:
-		 *
-		 *   ef 40 18  Winbond W25Q128        -> w25 driver
-		 *   20 ba 18  Micron MT25Q/N25Q128   -> m25p driver
-		 *
-		 * Neither driver accepts the other's manufacturer ID, so try each in
-		 * turn rather than committing the board to one batch.
-		 */
-		struct mtd_dev_s *mtd = w25_initialize(spi3);
-
-		if (!mtd) {
-			mtd = m25p_initialize(spi3);
-		}
-
-		if (!mtd) {
-			boot_log(LOG_ERR, "[boot] flash: chip not recognised (JEDEC %02x %02x %02x)\n",
-				 jedec[0], jedec[1], jedec[2]);
-
-		} else {
-			boot_log(LOG_INFO, "[boot] flash: chip ok (JEDEC %02x %02x %02x), registering MTD...\n",
-				 jedec[0], jedec[1], jedec[2]);
-			int ret = register_mtddriver("/dev/mtd0", mtd, 0755, NULL);
-
-			if (ret < 0 && ret != -EEXIST) {
-				boot_log(LOG_INFO, "[boot] flash: MTD register failed %d\n", ret);
-
-			} else {
-				ret = nx_mount("/dev/mtd0", "/fs/microsd", "littlefs", 0, NULL);
-
-				if (ret < 0) {
-					boot_log(LOG_INFO, "[boot] flash: first mount failed %d, formatting...\n", ret);
-					ret = nx_mount("/dev/mtd0", "/fs/microsd", "littlefs", 0, "forceformat");
-				}
-
-				if (ret == 0) {
-					boot_log(LOG_INFO, "[boot] flash: mounted at /fs/microsd\n");
-
-					/* Seed extras.txt on first boot if not present */
-					mkdir("/fs/microsd/etc", 0755);
-					const char *extras = "/fs/microsd/etc/extras.txt";
-					FILE *ef = fopen(extras, "r");
-
-					if (!ef) {
-						ef = fopen(extras, "w");
-
-						if (ef) {
-							fputs("# DAKEFPV H743 Pro extras -- runs at every boot\n", ef);
-							fputs("# Add driver start commands here.\n", ef);
-							fclose(ef);
-						}
-
-					} else {
-						fclose(ef);
-					}
-
-				} else {
-					boot_log(LOG_INFO, "[boot] flash: mount failed %d\n", ret);
-				}
-			}
-		}
 	}
 
 #endif

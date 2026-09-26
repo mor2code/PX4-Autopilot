@@ -20,8 +20,16 @@ param set-default BAT1_A_PER_V 83.3
 # GPS on USART1 (ttyS0) — already set via CONFIG_BOARD_SERIAL_GPS1
 # If no GPS connected PX4 will skip GPS fusion silently
 
-# Use RAM backend for dataman (no SD card slot; W25Q128 used for logging only)
+# No SD card slot. The onboard W25Q128 flash is not mounted (too small for
+# the logger's 50 MiB free-space minimum), as on the Holybro Kakute H7 boards:
+# keep dataman in RAM and disable onboard logging.
 param set-default SYS_DM_BACKEND 1
+
+# Ignore that there is no SD card
+param set-default COM_ARM_SDCARD 0
+
+# Disable logging
+param set-default SDLOG_BACKEND 0
 
 # Digital FPV camera / MSP DisplayPort OSD on TELEM3 (ttyS3)
 param set-default MSP_OSD_CONFIG 103

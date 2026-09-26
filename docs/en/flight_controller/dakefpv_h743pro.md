@@ -23,7 +23,7 @@ This flight controller is [manufacturer supported](../flight_controller/autopilo
 - **IMUs:** 2x ICM-42688P (SPI1 and SPI4, independent power supply)
 - **Barometer:** SPL06 on I2C2 (requires battery power)
 - **OSD:** AT7456E
-- **Blackbox storage:** 16 MB SPI NOR flash (no SD card slot)
+- **Blackbox storage:** 16 MB SPI NOR flash (not supported with PX4 yet; no SD card slot)
 - **CAN:** 1x CAN port (PD0/PD1)
 - **UARTs:** 8
 - **PWM outputs:** 8x motor (DShot) + 4x servo + 1x LED
@@ -111,6 +111,13 @@ This has been tested with an OpenIPC air unit on the stock harness.
 ## CAN
 
 CAN1 is on PD0 (RX) and PD1 (TX) with a silent pin on PD2. Enable DroneCAN peripherals via the `UAVCAN_ENABLE` parameter.
+
+## Logging
+
+There is no SD card slot, and PX4 does not use the onboard flash, so onboard logging is disabled
+([SDLOG_BACKEND](../advanced_config/parameter_reference.md#SDLOG_BACKEND) = `0`) and arming does not require an SD card
+([COM_ARM_SDCARD](../advanced_config/parameter_reference.md#COM_ARM_SDCARD) = `0`).
+Use [log streaming](../dev_log/logging.md#log-streaming) over MAVLink to record flight logs.
 
 ## PX4 Bootloader Update {#bootloader}
 

@@ -56,7 +56,8 @@ This flight controller is [manufacturer supported](../flight_controller/autopilo
 
 ::: warning
 The pads are silkscreened by UART number, so `T4`/`R4` is UART4 — which PX4 exposes as **TELEM3**, not TELEM4.
-The wiring diagram connects the digital VTX (DJI/HDZero/OpenIPC) to `T4`, so its PX4 port is TELEM3 (`MSP_OSD_CONFIG 103`).
+The digital VTX (DJI/HDZero/OpenIPC) plugs into the 6-pin HD VTX connector, which is wired to UART4, so its PX4 port is TELEM3 (`MSP_OSD_CONFIG 103`).
+See [OSD](#osd) for how UART4 is swapped to match that connector.
 :::
 
 ::: info
@@ -89,8 +90,23 @@ The AT7456E analog OSD is on SPI2 and is enabled by default for PAL
 Set it to `1` for NTSC, or `0` to disable the analog OSD; a reboot is required.
 Analog OSD and digital HD OSD can run at the same time.
 
-The digital VTX (DJI/HDZero/OpenIPC) uses MSP DisplayPort on the `T4`/`R4` pads, which is UART4 — PX4 TELEM3 (`/dev/ttyS3`).
+The digital VTX (DJI/HDZero/OpenIPC) uses MSP DisplayPort on the 6-pin HD VTX connector, which is UART4 — PX4 TELEM3 (`/dev/ttyS3`).
+Use the connector with a stock DJI/OpenIPC harness; this is the tested configuration.
 This is the default: `MSP_OSD_CONFIG` is set to `103` (TELEM3).
+
+The 6-pin HD VTX connector follows the usual DJI/OpenIPC signal order: 1 = VCC (12 V here), 2 = GND, 3 = flight controller TX, 4 = flight controller RX, 5 = signal GND, 6 = SBUS.
+
+::: info UART4 is swapped in firmware to match the connector
+On this board the HD VTX connector's pin 3 is routed to PB8 and pin 4 to PB9 — the opposite way round to the signals those positions carry on a standard harness.
+The STM32H743 offers UART4 TX only on PB9 and RX only on PB8, so PX4 swaps the UART4 peripheral itself (`USART_CR2_SWAP`, applied once during board start-up), so pin 3 carries TX and a stock DJI/OpenIPC harness works as labelled.
+This is automatic — there is nothing to configure.
+:::
+
+::: info `Dji`/`VTX` solder jumper
+The three-pad solder jumper silkscreened `Dji` and `VTX` selects what the HD VTX connector's `RX4` pin carries: UART4 RX for a digital air unit, or the analog composite video signal when the connector drives an analog VTX.
+For a digital air unit, fit a 0 Ω resistor (or a solder bridge) on the `Dji` side so the connector's `RX4` pin carries UART4 RX.
+This has been tested with an OpenIPC air unit on the stock harness.
+:::
 
 ## CAN
 

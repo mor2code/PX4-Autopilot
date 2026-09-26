@@ -12,7 +12,7 @@ This flight controller is [manufacturer supported](../flight_controller/autopilo
 :::
 
 The DAKEFPV H743 is a compact STM32H743-based flight controller aimed at FPV racing and freestyle builds.
-It features dual ICM-42688P IMUs, an SPL06 barometer, an AT7456E OSD, 16 MB onboard flash for blackbox logging (not supported with PX4 yet), and supports 12S LiPo input.
+It features dual ICM-42688P IMUs, an SPL06 barometer, an AT7456E OSD, 16 MB onboard flash for blackbox logging, and supports 12S LiPo input.
 
 ## Key Features
 
@@ -20,7 +20,7 @@ It features dual ICM-42688P IMUs, an SPL06 barometer, an AT7456E OSD, 16 MB onbo
 - **IMU:** Dual ICM-42688P (independent SPI buses, hardware vibration isolation)
 - **Barometer:** SPL06 (I2C2)
 - **OSD:** AT7456E (SPI2)
-- **Blackbox storage:** 16 MB SPI flash (onboard, not supported with PX4 yet; no SD card slot)
+- **Blackbox storage:** 16 MB SPI flash (onboard, no SD card slot)
 - **UARTs:** 8
 - **PWM outputs:** 12 motor outputs + 1 LED strip pad
 - **DShot:** M1–M8 and S3–S4 support bidirectional DShot
@@ -121,13 +121,6 @@ For CRSF/ELRS embedded RSSI, use `RSSI_TYPE = 3`.
 
 No built-in compass. Attach an external compass via the I2C2 pads (SCL = PB10, SDA = PB11).
 Set `SYS_HAS_MAG = 0` if no external compass is connected.
-
-## Logging
-
-There is no SD card slot, and PX4 does not use the onboard flash, so onboard logging is disabled
-([SDLOG_BACKEND](../advanced_config/parameter_reference.md#SDLOG_BACKEND) = `0`) and arming does not require an SD card
-([COM_ARM_SDCARD](../advanced_config/parameter_reference.md#COM_ARM_SDCARD) = `0`).
-Use [log streaming](../dev_log/logging.md#log-streaming) over MAVLink to record flight logs.
 
 ## PX4 Bootloader
 
